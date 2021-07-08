@@ -1,19 +1,19 @@
 use crate::utils;
 
 #[derive(Debug)]
-pub(crate) struct Matrix {
+pub struct Matrix {
     nrows: usize,
     ncols: usize,
     data: Vec<f64>,
 }
 
 impl Matrix {
-    pub(crate) fn new(nrows: usize, ncols: usize, data: Vec<f64>) -> Self {
+    pub fn new(nrows: usize, ncols: usize, data: Vec<f64>) -> Self {
         assert_eq!(data.len(), nrows * ncols, "dimensions do not match");
         Matrix { nrows, ncols, data }
     }
 
-    pub(crate) fn solve(&self, b: Self, eps: f64) -> Vec<f64> {
+    pub fn solve(&self, b: Self, eps: f64) -> Vec<f64> {
         assert_eq!(self.ncols, b.nrows, "dimensions of b do not match");
         assert_eq!(b.ncols, 1, "b should only have one column (vector)");
 
@@ -39,7 +39,6 @@ impl Matrix {
             }
 
             let dist = utils::dist_2(&x_next, &x_prev);
-            println!("prev: {:?}, next: {:?}, dist: {}", x_prev, x_next, dist);
             not_good_enough = dist >= eps;
             x_prev = x_next.clone();
         }
@@ -82,6 +81,18 @@ mod tests {
         let eps = 0.2;
         let res = a.solve(b, eps);
         let expect = vec![0.8122, -0.6650];
+        let d = utils::dist_2(&res, &expect);
+        assert!(d <= eps, "Approximation should be 'good enough' ");
+    }
+
+    #[test]
+    fn solve_2() {
+        let a = Matrix::new(3, 3, vec![4.0, -1.0, -1.0, -2.0, 6.0, 1.0, -1.0, 1.0, 7.0]);
+        let b = Matrix::new(3, 1, vec![3.0, 9.0, -6.0]);
+        let eps = 0.2;
+        let res = a.solve(b, eps);
+        let expect = vec![1.0, 2.0, -1.0];
+        println!("res: {:?}", res);
         let d = utils::dist_2(&res, &expect);
         assert!(d <= eps, "Approximation should be 'good enough' ");
     }
