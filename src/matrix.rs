@@ -17,24 +17,31 @@ impl Matrix {
         assert_eq!(self.ncols, b.nrows, "dimensions of b do not match");
         assert_eq!(b.ncols, 1, "b should only have one column (vector)");
 
-        let mut x_prev = vec![0.0; self.ncols];
+        let mut x_prev = vec![1.0; self.ncols];
         let mut x_next = x_prev.clone();
 
-        for i in 0..self.nrows {
-            let a_ii: f64 = self[(i, i)].into();
-            let b_i: f64 = b[(i, 0)].into();
+        let mut not_good_enough = true;
 
-            let mut sub_1 = 0.0;
-            for j in 0..i {
-                sub_1 += self[(i, j)] * x_next[j];
+        while not_good_enough {
+            for i in 0..self.nrows {
+                let a_ii = self[(i, i)];
+                let b_i = b[(i, 0)];
+
+                let mut sigma = 0.0;
+
+                for j in 0..self.nrows {
+                    if j != i {
+                        sigma += self[(i, j)] * x_next[j]
+                    }
+                }
+
+                x_next[i] = (b_i - sigma) / a_ii
             }
 
-            let mut sub_2 = 0.0;
-            for j in i..self.ncols {
-                sub_2 += self[(i, j)] * x_prev[j];
-            }
-
-            x_next[i] = 1.0 / a_ii * (b_i - sub_1 - sub_2)
+            let dist = utils::dist_2(&x_next, &x_prev);
+            println!("prev: {:?}, next: {:?}, dist: {}", x_prev, x_next, dist);
+            not_good_enough = dist >= eps;
+            x_prev = x_next.clone();
         }
 
         x_next
@@ -51,8 +58,7 @@ impl std::ops::Index<(usize, usize)> for Matrix {
 
 #[cfg(test)]
 mod tests {
-    use crate::matrix::Matrix;
-    use std::collections::HashMap;
+    use crate::{matrix::Matrix, utils};
 
     #[test]
     fn index() {
@@ -67,5 +73,16 @@ mod tests {
         let val = m[(1, 4)];
         let expect = 9.0;
         assert_eq!(val, expect, "indexing should return correct value");
+    }
+
+    #[test]
+    fn solve() {
+        let a = Matrix::new(2, 2, vec![16.0, 3.0, 7.0, -11.0]);
+        let b = Matrix::new(2, 1, vec![11.0, 13.0]);
+        let eps = 0.2;
+        let res = a.solve(b, eps);
+        let expect = vec![0.8122, -0.6650];
+        let d = utils::dist_2(&res, &expect);
+        assert!(d <= eps, "Approximation should be 'good enough' ");
     }
 }
