@@ -21,21 +21,16 @@ impl Matrix {
         let mut x_next = x_prev.clone();
 
         let mut not_good_enough = true;
-
         while not_good_enough {
             for i in 0..self.nrows {
-                let a_ii = self[(i, i)];
-                let b_i = b[(i, 0)];
-
                 let mut sigma = 0.0;
-
                 for j in 0..self.nrows {
                     if j != i {
                         sigma += self[(i, j)] * x_next[j]
                     }
                 }
 
-                x_next[i] = (b_i - sigma) / a_ii
+                x_next[i] = (b[(i, 0)] - sigma) / self[(i, i)]
             }
 
             let dist = utils::dist_2(&x_next, &x_prev);
