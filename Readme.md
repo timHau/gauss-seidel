@@ -1,4 +1,4 @@
-# Gauss Seidel
+# Gauss Seidel Method
 
 Implements the [Gauss-Seidel method](https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method), which is an iterative method to approximately solve a system of linear equations. 
 
@@ -21,7 +21,7 @@ Example:
 
 So `eps` gives you the precision of the Approximation.
 
-## Important
+## Important !!
 
 Note that the matrix you want to solve has to have non-zero elements on the diagnoals and is either [strictly diagonally dominant](https://en.wikipedia.org/wiki/Diagonally_dominant_matrix) or symmetric and positive definite.
 
